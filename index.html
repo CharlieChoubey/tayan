@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tayan | Brand Management Reimagined</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0a09; /* Dark stone background */
+            color: #e7e5e4; /* Light stone text */
+            overflow: hidden; /* Prevent scrollbars from the main page */
+            cursor: none; /* Hide default cursor */
+        }
+
+        /* Custom cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f97316; /* Orange */
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+            z-index: 9999;
+        }
+
+        .cursor-grow {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(249, 115, 22, 0.2);
+        }
+        
+        /* Interactive Orb */
+        #orb {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #fb923c 0%, #f97316 100%);
+            border-radius: 50%;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(249, 115, 22, 0.5), 0 0 60px rgba(249, 115, 22, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #orb:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 50px rgba(249, 115, 22, 0.7), 0 0 90px rgba(249, 115, 22, 0.5);
+        }
+
+        #orb.active {
+            width: 200vw;
+            height: 200vw;
+            opacity: 0;
+        }
+
+        /* Navigation Links */
+        .nav-link {
+            position: fixed;
+            z-index: 101;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: scale(0.5);
+            pointer-events: none;
+        }
+
+        #orb.open .nav-link {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        /* Content Sections */
+        .content-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0c0a09;
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+            overflow-y: auto;
+            padding: 8rem 2rem 4rem; /* Top padding for close button */
+        }
+
+        .content-section.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Close Button for sections */
+        .close-btn {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 110;
+        }
+        
+        /* Custom scrollbar for content sections */
+        .content-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        .content-section::-webkit-scrollbar-track {
+            background: #1c1917;
+        }
+        .content-section::-webkit-scrollbar-thumb {
+            background-color: #f97316;
+            border-radius: 20px;
+            border: 3px solid #1c1917;
+        }
+    </style>
+</head>
+<body class="text-stone-200">
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+
+    <!-- Main Title -->
+    <div id="main-title" class="fixed inset-0 flex flex-col items-center justify-center text-center z-50 pointer-events-none transition-opacity duration-500">
+        <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter">TAYAN</h1>
+        <p class="text-xl md:text-2xl text-orange-400 font-light tracking-widest mt-2">Brand Management Reimagined</p>
+    </div>
+
+    <!-- The Interactive Orb -->
+    <div id="orb"></div>
+
+    <!-- Navigation Links Container -->
+    <div id="nav-container"></div>
+
+    <!-- Content Sections -->
+    <div id="content-container">
+        <!-- About Me Section -->
+        <section id="about" class="content-section">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-5xl font-bold text-orange-500 mb-8">About Tayan</h2>
+                <div class="grid md:grid-cols-3 gap-8 items-center">
+                    <div class="md:col-span-1 flex justify-center">
+                       <svg class="w-48 h-48 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                       </svg>
+                    </div>
+                    <div class="md:col-span-2 text-lg text-stone-300 space-y-4">
+                        <p>Hello! I'm Tayan, a brand architect and digital strategist with a passion for building unforgettable brand identities. My philosophy is simple: a great brand is a story well told.</p>
+                        <p>I thrive at the intersection of creativity and strategy, transforming concepts into compelling narratives that resonate with audiences and drive growth. Let's build something iconic together.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Work Section -->
+        <section id="work" class="content-section">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-5xl font-bold text-orange-500 mb-12 text-center">My Process</h2>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <!-- Design Card -->
+                    <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Design</h3>
+                        <p class="text-stone-300">We start with the 'why'. I dive deep into your vision, market, and audience to craft a strategic brand foundation and a unique visual identity that tells your story.</p>
+                    </div>
+                    <!-- Create Card -->
+                    <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Create</h3>
+                        <p class="text-stone-300">From logos and websites to complete marketing collateral, I bring the brand to life across all digital and physical touchpoints with meticulous attention to detail.</p>
+                    </div>
+                    <!-- Deliver Card -->
+                    <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Deliver</h3>
+                        <p class="text-stone-300">Launching the brand is just the beginning. I provide ongoing management, performance analysis, and strategic guidance to ensure your brand continues to grow and evolve.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Playground Section -->
+        <section id="playground" class="content-section">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-5xl font-bold text-orange-500 mb-4">Brand Playground</h2>
+                <p class="text-lg text-stone-300 mb-8">Experiment with the core elements of a brand identity.</p>
+                <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700">
+                    <div id="playground-output" class="mb-8 p-8 bg-stone-900 rounded-lg transition-all duration-500">
+                        <h3 id="playground-text" class="text-4xl font-bold transition-all duration-500">Your Brand Name</h3>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="color-picker" class="block mb-2 font-semibold text-stone-400">Accent Color</label>
+                            <input type="color" id="color-picker" value="#f97316" class="w-full h-12 p-1 bg-stone-700 rounded-md border-2 border-transparent cursor-pointer">
+                        </div>
+                        <div>
+                            <label for="font-selector" class="block mb-2 font-semibold text-stone-400">Font Style</label>
+                            <select id="font-selector" class="w-full h-12 px-4 bg-stone-700 rounded-md appearance-none">
+                                <option value="'Inter', sans-serif">Modern Sans</option>
+                                <option value="'Georgia', serif">Classic Serif</option>
+                                <option value="'Courier New', monospace">Tech Mono</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="content-section">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-5xl font-bold text-orange-500 mb-8 text-center">Let's Connect</h2>
+                <form class="space-y-6">
+                    <input type="text" placeholder="Your Name" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+                    <input type="email" placeholder="Your Email" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+                    <textarea placeholder="Your Message" rows="5" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"></textarea>
+                    <button type="submit" class="w-full p-4 bg-orange-600 hover:bg-orange-500 rounded-lg text-white font-bold text-lg transition-all duration-300">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <!-- Close Button Template -->
+    <button id="close-btn-template" class="close-btn hidden text-stone-400 hover:text-orange-500 transition-colors">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orb = document.getElementById('orb');
+            const mainTitle = document.getElementById('main-title');
+            const navContainer = document.getElementById('nav-container');
+            const contentSections = document.querySelectorAll('.content-section');
+            const closeBtnTemplate = document.getElementById('close-btn-template');
+            const cursor = document.querySelector('.cursor');
+
+            // --- Custom Cursor Logic ---
+            window.addEventListener('mousemove', e => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
+
+            document.addEventListener('mouseover', e => {
+                if (e.target.closest('a, button, input, select, textarea, #orb')) {
+                    cursor.classList.add('cursor-grow');
+                } else {
+                    cursor.classList.remove('cursor-grow');
+                }
+            });
+
+
+            // --- Navigation Setup ---
+            const navItems = [
+                { id: 'about', name: 'About' },
+                { id: 'work', name: 'Process' },
+                { id: 'playground', name: 'Playground' },
+                { id: 'contact', name: 'Contact' }
+            ];
+
+            // --- Orb Interaction ---
+            orb.addEventListener('click', () => {
+                if (orb.classList.contains('open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+
+            function openMenu() {
+                orb.classList.add('open');
+                mainTitle.style.opacity = '0';
+                createNavLinks();
+            }
+
+            function closeMenu() {
+                orb.classList.remove('open');
+                mainTitle.style.opacity = '1';
+                navContainer.innerHTML = ''; // Clear links
+            }
+
+            function createNavLinks() {
+                navContainer.innerHTML = ''; // Clear existing links
+                const angleStep = (2 * Math.PI) / navItems.length;
+                const radius = Math.min(window.innerWidth, window.innerHeight) / 3.5;
+
+                navItems.forEach((item, index) => {
+                    const angle = index * angleStep - (Math.PI / 2); // Start from top
+                    const x = 50 + (radius / window.innerWidth * 100) * Math.cos(angle);
+                    const y = 50 + (radius / window.innerHeight * 100) * Math.sin(angle);
+
+                    const link = document.createElement('button');
+                    link.textContent = item.name;
+                    link.className = 'nav-link text-2xl font-bold text-stone-200 hover:text-orange-400 transition-colors';
+                    link.style.left = `${x}vw`;
+                    link.style.top = `${y}vh`;
+                    // Adjust transform origin to be centered
+                    link.style.transform = `translate(-50%, -50%) scale(0.5)`;
+                    
+                    link.dataset.section = item.id;
+                    navContainer.appendChild(link);
+                    
+                    // Trigger the animation
+                    setTimeout(() => {
+                        link.style.transform = 'translate(-50%, -50%) scale(1)';
+                        link.style.opacity = '1';
+                    }, 50 * index);
+
+                    link.addEventListener('click', () => showSection(item.id));
+                });
+            }
+
+            // --- Section Management ---
+            function showSection(id) {
+                orb.classList.add('active'); // Animate orb expansion
+                
+                setTimeout(() => {
+                    const section = document.getElementById(id);
+                    if (section) {
+                        section.classList.add('visible');
+                        addCloseButton(section);
+                    }
+                    closeMenu(); // Hide nav links
+                }, 500); // Wait for orb animation
+            }
+
+            function hideAllSections() {
+                contentSections.forEach(section => {
+                    section.classList.remove('visible');
+                    const btn = section.querySelector('.close-btn');
+                    if(btn) btn.remove();
+                });
+                orb.classList.remove('active'); // Shrink orb back
+                setTimeout(() => {
+                     mainTitle.style.opacity = '1';
+                }, 500);
+            }
+
+            function addCloseButton(section) {
+                const existingBtn = section.querySelector('.close-btn');
+                if (existingBtn) existingBtn.remove();
+                
+                const closeBtn = closeBtnTemplate.cloneNode(true);
+                closeBtn.id = '';
+                closeBtn.classList.remove('hidden');
+                section.appendChild(closeBtn);
+                closeBtn.addEventListener('click', hideAllSections);
+            }
+
+            // --- Playground Logic ---
+            const colorPicker = document.getElementById('color-picker');
+            const fontSelector = document.getElementById('font-selector');
+            const playgroundText = document.getElementById('playground-text');
+            const playgroundOutput = document.getElementById('playground-output');
+
+            colorPicker.addEventListener('input', (e) => {
+                playgroundText.style.color = e.target.value;
+                playgroundOutput.style.borderColor = e.target.value;
+            });
+
+            fontSelector.addEventListener('change', (e) => {
+                playgroundText.style.fontFamily = e.target.value;
+            });
+
+            // Re-calculate nav link positions on window resize
+            window.addEventListener('resize', () => {
+                if (orb.classList.contains('open')) {
+                    createNavLinks();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
