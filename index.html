@@ -11,17 +11,30 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0c0a09; /* Dark stone background */
-            color: #e7e5e4; /* Light stone text */
-            overflow: hidden; /* Prevent scrollbars from the main page */
-            cursor: none; /* Hide default cursor */
+            background-color: #0c0a09; /* Fallback background */
+            color: #e7e5e4;
+            overflow: hidden;
+            cursor: none;
+        }
+
+        #background-video {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            object-fit: cover;
+            filter: brightness(0.4);
         }
 
         /* Custom cursor */
         .cursor {
             width: 20px;
             height: 20px;
-            border: 2px solid #f97316; /* Orange */
+            border: 2px solid #f97316;
             border-radius: 50%;
             position: fixed;
             pointer-events: none;
@@ -37,47 +50,92 @@
         }
         
         /* Interactive Orb */
-        #orb {
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(circle, #fb923c 0%, #f97316 100%);
-            border-radius: 50%;
+        #orb-container {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             z-index: 100;
-            box-shadow: 0 0 30px rgba(249, 115, 22, 0.5), 0 0 60px rgba(249, 115, 22, 0.3);
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1), height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        #orb-container.expanded {
+            width: 450px;
+            height: 450px;
+        }
+
+        #orb {
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
             display: flex;
             align-items: center;
             justify-content: center;
+            background: radial-gradient(circle at 30% 30%, #fb923c, #ea580c 80%);
+            box-shadow: 
+                inset 0 0 20px rgba(255, 255, 255, 0.2),
+                0 0 30px rgba(249, 115, 22, 0.6), 
+                0 0 60px rgba(249, 115, 22, 0.4);
+            animation: orb-pulse 2s infinite cubic-bezier(0.455, 0.030, 0.515, 0.955);
         }
 
-        #orb:hover {
-            transform: translate(-50%, -50%) scale(1.2);
-            box-shadow: 0 0 50px rgba(249, 115, 22, 0.7), 0 0 90px rgba(249, 115, 22, 0.5);
+        #orb-rotator {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            animation: orb-rotate 15s linear infinite;
+        }
+        
+        @keyframes orb-pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        #orb.active {
-            width: 200vw;
-            height: 200vw;
-            opacity: 0;
+        @keyframes orb-rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* Navigation Links */
-        .nav-link {
-            position: fixed;
-            z-index: 101;
-            opacity: 0;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
-            transform: scale(0.5);
-            pointer-events: none;
+        #nav-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
         }
 
-        #orb.open .nav-link {
+        .nav-link {
+            position: absolute;
+            z-index: 101;
+            opacity: 0;
+            transition: opacity 0.6s, transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            transform: translate(-50%, -50%) scale(0.5);
+            pointer-events: none;
+            background: none;
+            border: none;
+            color: #e7e5e4;
+            font-size: 1.5rem; /* 24px */
+            font-weight: 700;
+            top: 50%;
+            left: 50%;
+        }
+        
+        .nav-link:hover {
+            color: #f97316;
+            transform: translate(-50%, -50%) scale(1.2) !important; /* Override animation transform */
+        }
+
+        #orb-container.expanded .nav-link {
             opacity: 1;
-            transform: scale(1);
             pointer-events: auto;
         }
 
@@ -88,21 +146,23 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: #0c0a09;
+            background-color: rgba(12, 10, 9, 0.8);
+            backdrop-filter: blur(10px);
             z-index: 90;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.8s ease-in-out;
+            transition: opacity 0.5s ease-in-out, transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
             overflow-y: auto;
-            padding: 8rem 2rem 4rem; /* Top padding for close button */
+            padding: 8rem 2rem 4rem;
+            transform: scale(1.2) rotate(15deg);
         }
 
         .content-section.visible {
             opacity: 1;
             pointer-events: auto;
+            transform: scale(1) rotate(0deg);
         }
 
-        /* Close Button for sections */
         .close-btn {
             position: fixed;
             top: 2rem;
@@ -110,43 +170,35 @@
             z-index: 110;
         }
         
-        /* Custom scrollbar for content sections */
-        .content-section::-webkit-scrollbar {
-            width: 8px;
-        }
-        .content-section::-webkit-scrollbar-track {
-            background: #1c1917;
-        }
-        .content-section::-webkit-scrollbar-thumb {
-            background-color: #f97316;
-            border-radius: 20px;
-            border: 3px solid #1c1917;
-        }
+        .content-section::-webkit-scrollbar { width: 8px; }
+        .content-section::-webkit-scrollbar-track { background: #1c1917; }
+        .content-section::-webkit-scrollbar-thumb { background-color: #f97316; border-radius: 20px; border: 3px solid #1c1917; }
     </style>
 </head>
-<body class="text-stone-200">
+<body>
+    <video autoplay muted loop id="background-video">
+        <!-- Using a placeholder video service. Replace with your own video URL. -->
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-star-field-in-space-30886-large.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
 
-    <!-- Custom Cursor -->
     <div class="cursor"></div>
 
-    <!-- Main Title -->
     <div id="main-title" class="fixed inset-0 flex flex-col items-center justify-center text-center z-50 pointer-events-none transition-opacity duration-500">
         <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter">TAYAN</h1>
         <p class="text-xl md:text-2xl text-orange-400 font-light tracking-widest mt-2">Brand Management Reimagined</p>
     </div>
 
-    <!-- The Interactive Orb -->
-    <div id="orb"></div>
-
-    <!-- Navigation Links Container -->
-    <div id="nav-container"></div>
+    <div id="orb-container">
+        <div id="orb"><div id="orb-rotator"></div></div>
+        <div id="nav-container"></div>
+    </div>
 
     <!-- Content Sections -->
     <div id="content-container">
-        <!-- About Me Section -->
         <section id="about" class="content-section">
             <div class="max-w-4xl mx-auto">
-                <h2 class="text-5xl font-bold text-orange-500 mb-8">About Tayan</h2>
+                <h2 class="text-5xl font-bold text-orange-500 mb-8">A Brand Is A Living Story</h2>
                 <div class="grid md:grid-cols-3 gap-8 items-center">
                     <div class="md:col-span-1 flex justify-center">
                        <svg class="w-48 h-48 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
@@ -155,44 +207,61 @@
                        </svg>
                     </div>
                     <div class="md:col-span-2 text-lg text-stone-300 space-y-4">
-                        <p>Hello! I'm Tayan, a brand architect and digital strategist with a passion for building unforgettable brand identities. My philosophy is simple: a great brand is a story well told.</p>
-                        <p>I thrive at the intersection of creativity and strategy, transforming concepts into compelling narratives that resonate with audiences and drive growth. Let's build something iconic together.</p>
+                        <p>Hello! I'm Tayan. I don't just build brands; I breathe life into them. My philosophy is that a powerful brand is more than a logo—it's a dynamic story, an emotional connection, and a consistent promise.</p>
+                        <p>I thrive at the intersection of bold creativity and sharp strategy. My work is about transforming core ideas into compelling narratives that not only capture attention but also build lasting loyalty and drive tangible growth.</p>
+                        <p class="font-semibold text-orange-400 pt-4">Core Principles: Clarity, Courage, and Consistency.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Work Section -->
         <section id="work" class="content-section">
             <div class="max-w-6xl mx-auto">
-                <h2 class="text-5xl font-bold text-orange-500 mb-12 text-center">My Process</h2>
-                <div class="grid md:grid-cols-3 gap-8 text-center">
-                    <!-- Design Card -->
+                <h2 class="text-5xl font-bold text-orange-500 mb-12 text-center">The Brand Alchemy Process</h2>
+                <div class="grid md:grid-cols-3 gap-8 text-left">
                     <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
-                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Design</h3>
-                        <p class="text-stone-300">We start with the 'why'. I dive deep into your vision, market, and audience to craft a strategic brand foundation and a unique visual identity that tells your story.</p>
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">1. Design</h3>
+                        <p class="text-stone-300 mb-4">This is the soul-searching phase. We uncover the 'why' behind your brand to build a rock-solid strategic and visual foundation.</p>
+                        <ul class="list-disc list-inside text-stone-400 space-y-2">
+                            <li>Market & Audience Analysis</li>
+                            <li>Brand Positioning & Messaging</li>
+                            <li>Logo Systems & Visual Identity</li>
+                            <li>Comprehensive Brand Guidelines</li>
+                        </ul>
                     </div>
-                    <!-- Create Card -->
                     <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
-                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Create</h3>
-                        <p class="text-stone-300">From logos and websites to complete marketing collateral, I bring the brand to life across all digital and physical touchpoints with meticulous attention to detail.</p>
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">2. Create</h3>
+                        <p class="text-stone-300 mb-4">Here, we bring the strategy to life. Every asset is crafted with purpose and precision, ensuring a cohesive brand experience everywhere.</p>
+                         <ul class="list-disc list-inside text-stone-400 space-y-2">
+                            <li>Website & UI/UX Design</li>
+                            <li>Marketing & Sales Collateral</li>
+                            <li>Packaging & Merch Design</li>
+                            <li>Content Creation (Photo/Video)</li>
+                        </ul>
                     </div>
-                    <!-- Deliver Card -->
                     <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700 hover:border-orange-500 hover:scale-105 transition-all duration-300">
-                        <h3 class="text-3xl font-bold text-orange-400 mb-4">Deliver</h3>
-                        <p class="text-stone-300">Launching the brand is just the beginning. I provide ongoing management, performance analysis, and strategic guidance to ensure your brand continues to grow and evolve.</p>
+                        <h3 class="text-3xl font-bold text-orange-400 mb-4">3. Deliver</h3>
+                        <p class="text-stone-300 mb-4">A brand launch is a beginning, not an end. I provide the tools and insights for sustained growth and evolution in a changing market.</p>
+                         <ul class="list-disc list-inside text-stone-400 space-y-2">
+                            <li>Strategic Launch Campaigns</li>
+                            <li>Performance Analytics & Reporting</li>
+                            <li>Social Media Management</li>
+                            <li>Ongoing Brand Stewardship</li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Playground Section -->
         <section id="playground" class="content-section">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-5xl font-bold text-orange-500 mb-4">Brand Playground</h2>
-                <p class="text-lg text-stone-300 mb-8">Experiment with the core elements of a brand identity.</p>
+                <p class="text-lg text-stone-300 mb-8">Get a feel for the core elements of brand identity.</p>
                 <div class="bg-stone-800/50 p-8 rounded-2xl border border-stone-700">
-                    <div id="playground-output" class="mb-8 p-8 bg-stone-900 rounded-lg transition-all duration-500">
+                     <div class="mb-6">
+                        <input type="text" id="brand-name-input" placeholder="Type a Brand Name..." class="w-full max-w-md mx-auto p-3 bg-stone-700/50 text-center text-xl rounded-md border border-stone-600 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
+                    </div>
+                    <div id="playground-output" class="mb-8 p-8 bg-stone-900 rounded-lg transition-all duration-500 border-2 border-transparent">
                         <h3 id="playground-text" class="text-4xl font-bold transition-all duration-500">Your Brand Name</h3>
                     </div>
                     <div class="grid md:grid-cols-2 gap-6">
@@ -202,7 +271,7 @@
                         </div>
                         <div>
                             <label for="font-selector" class="block mb-2 font-semibold text-stone-400">Font Style</label>
-                            <select id="font-selector" class="w-full h-12 px-4 bg-stone-700 rounded-md appearance-none">
+                            <select id="font-selector" class="w-full h-12 px-4 bg-stone-700 rounded-md appearance-none cursor-pointer">
                                 <option value="'Inter', sans-serif">Modern Sans</option>
                                 <option value="'Georgia', serif">Classic Serif</option>
                                 <option value="'Courier New', monospace">Tech Mono</option>
@@ -213,21 +282,19 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
         <section id="contact" class="content-section">
             <div class="max-w-2xl mx-auto">
-                <h2 class="text-5xl font-bold text-orange-500 mb-8 text-center">Let's Connect</h2>
+                <h2 class="text-5xl font-bold text-orange-500 mb-8 text-center">Let's Build Something Iconic</h2>
                 <form class="space-y-6">
                     <input type="text" placeholder="Your Name" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
                     <input type="email" placeholder="Your Email" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all">
-                    <textarea placeholder="Your Message" rows="5" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"></textarea>
-                    <button type="submit" class="w-full p-4 bg-orange-600 hover:bg-orange-500 rounded-lg text-white font-bold text-lg transition-all duration-300">Send Message</button>
+                    <textarea placeholder="Tell me about your vision..." rows="5" class="w-full p-4 bg-stone-800/50 rounded-lg border border-stone-700 focus:outline-none focus:ring-2 focus:ring-orange-500 transition-all"></textarea>
+                    <button type="submit" class="w-full p-4 bg-orange-600 hover:bg-orange-500 rounded-lg text-white font-bold text-lg transition-all duration-300">Launch a Conversation</button>
                 </form>
             </div>
         </section>
     </div>
 
-    <!-- Close Button Template -->
     <button id="close-btn-template" class="close-btn hidden text-stone-400 hover:text-orange-500 transition-colors">
         <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
@@ -235,12 +302,23 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const orb = document.getElementById('orb');
+            const orbContainer = document.getElementById('orb-container');
             const mainTitle = document.getElementById('main-title');
             const navContainer = document.getElementById('nav-container');
             const contentSections = document.querySelectorAll('.content-section');
             const closeBtnTemplate = document.getElementById('close-btn-template');
             const cursor = document.querySelector('.cursor');
+
+            let isMenuOpen = false;
+            let animationFrameId;
+            let currentAngle = 0;
+
+            const navItems = [
+                { id: 'about', name: 'About' },
+                { id: 'work', name: 'Process' },
+                { id: 'playground', name: 'Playground' },
+                { id: 'contact', name: 'Contact' }
+            ];
 
             // --- Custom Cursor Logic ---
             window.addEventListener('mousemove', e => {
@@ -249,109 +327,133 @@
             });
 
             document.addEventListener('mouseover', e => {
-                if (e.target.closest('a, button, input, select, textarea, #orb')) {
+                if (e.target.closest('a, button, input, select, textarea, #orb-container')) {
                     cursor.classList.add('cursor-grow');
                 } else {
                     cursor.classList.remove('cursor-grow');
                 }
             });
 
-
-            // --- Navigation Setup ---
-            const navItems = [
-                { id: 'about', name: 'About' },
-                { id: 'work', name: 'Process' },
-                { id: 'playground', name: 'Playground' },
-                { id: 'contact', name: 'Contact' }
-            ];
-
             // --- Orb Interaction ---
-            orb.addEventListener('click', () => {
-                if (orb.classList.contains('open')) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
-            });
+            orbContainer.addEventListener('mouseenter', openMenu);
+            orbContainer.addEventListener('mouseleave', closeMenu);
 
             function openMenu() {
-                orb.classList.add('open');
+                if(isMenuOpen) return;
+                isMenuOpen = true;
+                orbContainer.classList.add('expanded');
                 mainTitle.style.opacity = '0';
                 createNavLinks();
+                startOrbitAnimation();
             }
 
             function closeMenu() {
-                orb.classList.remove('open');
-                mainTitle.style.opacity = '1';
-                navContainer.innerHTML = ''; // Clear links
+                isMenuOpen = false;
+                orbContainer.classList.remove('expanded');
+                if(!document.querySelector('.content-section.visible')) {
+                    mainTitle.style.opacity = '1';
+                }
+                // Fade out links before removing
+                const links = navContainer.querySelectorAll('.nav-link');
+                links.forEach(link => {
+                    link.style.opacity = '0';
+                    link.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                });
+
+                setTimeout(() => {
+                    navContainer.innerHTML = '';
+                    stopOrbitAnimation();
+                }, 600); // Match transition duration
+            }
+
+            function startOrbitAnimation() {
+                const links = navContainer.querySelectorAll('.nav-link');
+                if (links.length === 0) return;
+
+                const orbit = () => {
+                    currentAngle += 0.002; // Speed of orbit
+                    
+                    links.forEach((link, index) => {
+                        const angleStep = (2 * Math.PI) / links.length;
+                        const angle = index * angleStep + currentAngle;
+                        
+                        // We use the expanded container's radius for positioning
+                        const radius = orbContainer.offsetWidth / 2 * 0.75; 
+                        const x = 50 + (radius / orbContainer.offsetWidth * 100) * Math.cos(angle);
+                        const y = 50 + (radius / orbContainer.offsetHeight * 100) * Math.sin(angle);
+                        
+                        link.style.left = `${x}%`;
+                        link.style.top = `${y}%`;
+
+                        // Apply counter-rotation to keep text upright
+                        // The parent does not rotate, so we only need to set the link's transform
+                        // We set the scale here to ensure it doesn't get overridden by hover
+                        if (!link.matches(':hover')) {
+                            link.style.transform = `translate(-50%, -50%) scale(1)`;
+                        }
+                    });
+
+                    animationFrameId = requestAnimationFrame(orbit);
+                };
+                orbit();
+            }
+
+            function stopOrbitAnimation() {
+                cancelAnimationFrame(animationFrameId);
             }
 
             function createNavLinks() {
-                navContainer.innerHTML = ''; // Clear existing links
-                const angleStep = (2 * Math.PI) / navItems.length;
-                const radius = Math.min(window.innerWidth, window.innerHeight) / 3.5;
-
-                navItems.forEach((item, index) => {
-                    const angle = index * angleStep - (Math.PI / 2); // Start from top
-                    const x = 50 + (radius / window.innerWidth * 100) * Math.cos(angle);
-                    const y = 50 + (radius / window.innerHeight * 100) * Math.sin(angle);
-
+                navContainer.innerHTML = '';
+                navItems.forEach(item => {
                     const link = document.createElement('button');
                     link.textContent = item.name;
-                    link.className = 'nav-link text-2xl font-bold text-stone-200 hover:text-orange-400 transition-colors';
-                    link.style.left = `${x}vw`;
-                    link.style.top = `${y}vh`;
-                    // Adjust transform origin to be centered
-                    link.style.transform = `translate(-50%, -50%) scale(0.5)`;
-                    
+                    link.className = 'nav-link';
                     link.dataset.section = item.id;
                     navContainer.appendChild(link);
-                    
-                    // Trigger the animation
-                    setTimeout(() => {
-                        link.style.transform = 'translate(-50%, -50%) scale(1)';
-                        link.style.opacity = '1';
-                    }, 50 * index);
-
                     link.addEventListener('click', () => showSection(item.id));
                 });
+                
+                // Set initial scale to 1 after a short delay to trigger transition
+                setTimeout(() => {
+                    navContainer.querySelectorAll('.nav-link').forEach(l => {
+                        l.style.transform = 'translate(-50%, -50%) scale(1)';
+                    });
+                }, 50);
             }
 
             // --- Section Management ---
             function showSection(id) {
-                orb.classList.add('active'); // Animate orb expansion
-                
-                setTimeout(() => {
-                    const section = document.getElementById(id);
-                    if (section) {
-                        section.classList.add('visible');
-                        addCloseButton(section);
-                    }
-                    closeMenu(); // Hide nav links
-                }, 500); // Wait for orb animation
+                hideAllSections(true);
+                const section = document.getElementById(id);
+                if (section) {
+                    orbContainer.style.opacity = '0';
+                    orbContainer.style.pointerEvents = 'none';
+                    section.classList.add('visible');
+                    addCloseButton(section);
+                }
             }
 
-            function hideAllSections() {
+            function hideAllSections(isTransitioning = false) {
                 contentSections.forEach(section => {
                     section.classList.remove('visible');
                     const btn = section.querySelector('.close-btn');
                     if(btn) btn.remove();
                 });
-                orb.classList.remove('active'); // Shrink orb back
-                setTimeout(() => {
-                     mainTitle.style.opacity = '1';
-                }, 500);
+                
+                orbContainer.style.opacity = '1';
+                orbContainer.style.pointerEvents = 'auto';
+
+                if (!isTransitioning) {
+                    mainTitle.style.opacity = '1';
+                }
             }
 
             function addCloseButton(section) {
-                const existingBtn = section.querySelector('.close-btn');
-                if (existingBtn) existingBtn.remove();
-                
                 const closeBtn = closeBtnTemplate.cloneNode(true);
                 closeBtn.id = '';
                 closeBtn.classList.remove('hidden');
                 section.appendChild(closeBtn);
-                closeBtn.addEventListener('click', hideAllSections);
+                closeBtn.addEventListener('click', () => hideAllSections(false));
             }
 
             // --- Playground Logic ---
@@ -359,6 +461,7 @@
             const fontSelector = document.getElementById('font-selector');
             const playgroundText = document.getElementById('playground-text');
             const playgroundOutput = document.getElementById('playground-output');
+            const brandNameInput = document.getElementById('brand-name-input');
 
             colorPicker.addEventListener('input', (e) => {
                 playgroundText.style.color = e.target.value;
@@ -368,12 +471,9 @@
             fontSelector.addEventListener('change', (e) => {
                 playgroundText.style.fontFamily = e.target.value;
             });
-
-            // Re-calculate nav link positions on window resize
-            window.addEventListener('resize', () => {
-                if (orb.classList.contains('open')) {
-                    createNavLinks();
-                }
+            
+            brandNameInput.addEventListener('input', (e) => {
+                playgroundText.textContent = e.target.value || 'Your Brand Name';
             });
         });
     </script>
