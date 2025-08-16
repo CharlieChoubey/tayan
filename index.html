@@ -24,7 +24,7 @@
             min-width: 100%;
             min-height: 100%;
             z-index: -1;
-            background-image: url('https://storage.googleapis.com/gemini-prod-us-west1-423908599496-us-west1-b/uploaded/Deep_Space.jpg-c871e0d9-72d7-4e19-a474-f7f9b4d00503');
+            background-image: url('Deep_Space.jpg');
             background-size: cover;
             background-position: center;
             filter: brightness(0.5);
@@ -64,17 +64,17 @@
         
         /* Interactive Orb */
         #orb-container {
-            position: relative; /* Changed from fixed */
+            position: relative;
             z-index: 100;
             width: 150px;
             height: 150px;
-            margin: 1.5rem 0; /* Spacing between title and subtitle */
+            margin: 1rem 0; /* Reduced spacing */
             border-radius: 50%;
             transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1), height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
         #orb-container.expanded {
-            width: 300px; /* Adjusted for better mobile view */
+            width: 300px;
             height: 300px;
         }
         @media (min-width: 768px) {
@@ -140,7 +140,7 @@
             background: none;
             border: none;
             color: #e7e5e4;
-            font-size: 1.25rem; /* 20px */
+            font-size: 1.25rem;
             font-weight: 700;
             top: 50%;
             left: 50%;
@@ -201,14 +201,14 @@
     <div class="cursor"></div>
 
     <div id="main-title" class="fixed inset-0 flex flex-col items-center justify-center text-center z-50 pointer-events-none transition-opacity duration-500">
-        <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter pointer-events-auto">TAYAN</h1>
+        <h1 id="tayan-title" class="text-5xl md:text-8xl font-black uppercase tracking-tighter pointer-events-auto transition-opacity duration-500">TAYAN</h1>
         
         <div id="orb-container" class="pointer-events-auto">
             <div id="orb"><div id="orb-rotator"></div></div>
             <div id="nav-container"></div>
         </div>
 
-        <p class="text-xl md:text-2xl text-orange-400 font-light tracking-widest pointer-events-auto">Brand Management Reimagined</p>
+        <p id="tayan-subtitle" class="text-xl md:text-2xl text-orange-400 font-light tracking-widest pointer-events-auto transition-opacity duration-500">Brand Management Reimagined</p>
     </div>
 
     <!-- Content Sections -->
@@ -319,6 +319,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             const orbContainer = document.getElementById('orb-container');
             const mainTitleContainer = document.getElementById('main-title');
+            const tayanTitle = document.getElementById('tayan-title');
+            const tayanSubtitle = document.getElementById('tayan-subtitle');
             const navContainer = document.getElementById('nav-container');
             const contentSections = document.querySelectorAll('.content-section');
             const closeBtnTemplate = document.getElementById('close-btn-template');
@@ -371,7 +373,8 @@
                 if(isMenuOpen) return;
                 isMenuOpen = true;
                 orbContainer.classList.add('expanded');
-                mainTitleContainer.style.opacity = '0';
+                tayanTitle.style.opacity = '0';
+                tayanSubtitle.style.opacity = '0';
                 createNavLinks();
                 startOrbitAnimation();
             }
@@ -380,7 +383,8 @@
                 isMenuOpen = false;
                 orbContainer.classList.remove('expanded');
                 if(!document.querySelector('.content-section.visible')) {
-                    mainTitleContainer.style.opacity = '1';
+                    tayanTitle.style.opacity = '1';
+                    tayanSubtitle.style.opacity = '1';
                 }
                 const links = navContainer.querySelectorAll('.nav-link');
                 links.forEach(link => {
@@ -444,7 +448,7 @@
                 hideAllSections(true);
                 const section = document.getElementById(id);
                 if (section) {
-                    mainTitleContainer.style.display = 'none'; // Hide title container completely
+                    mainTitleContainer.style.display = 'none';
                     section.classList.add('visible');
                     addCloseButton(section);
                 }
@@ -460,7 +464,8 @@
                 mainTitleContainer.style.display = 'flex';
 
                 if (!isTransitioning) {
-                    mainTitleContainer.style.opacity = '1';
+                    tayanTitle.style.opacity = '1';
+                    tayanSubtitle.style.opacity = '1';
                 }
             }
 
