@@ -17,17 +17,27 @@
             cursor: none;
         }
 
-        #background-video {
+        #background-image {
             position: fixed;
             right: 0;
             bottom: 0;
             min-width: 100%;
             min-height: 100%;
-            width: auto;
-            height: auto;
             z-index: -1;
-            object-fit: cover;
-            filter: brightness(0.4);
+            background-image: url('https://storage.googleapis.com/gemini-prod-us-west1-423908599496-us-west1-b/uploaded/Deep_Space.jpg-c871e0d9-72d7-4e19-a474-f7f9b4d00503');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.5);
+            animation: ken-burns 40s ease-in-out infinite alternate;
+        }
+        
+        @keyframes ken-burns {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.1);
+            }
         }
 
         /* Custom cursor */
@@ -42,6 +52,9 @@
             transition: width 0.2s, height 0.2s, background-color 0.2s;
             z-index: 9999;
         }
+        @media (hover: none) {
+            .cursor { display: none; } /* Hide custom cursor on touch devices */
+        }
 
         .cursor-grow {
             width: 40px;
@@ -51,20 +64,24 @@
         
         /* Interactive Orb */
         #orb-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative; /* Changed from fixed */
             z-index: 100;
             width: 150px;
             height: 150px;
+            margin: 1.5rem 0; /* Spacing between title and subtitle */
             border-radius: 50%;
             transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1), height 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
         #orb-container.expanded {
-            width: 450px;
-            height: 450px;
+            width: 300px; /* Adjusted for better mobile view */
+            height: 300px;
+        }
+        @media (min-width: 768px) {
+            #orb-container.expanded {
+                width: 450px;
+                height: 450px;
+            }
         }
 
         #orb {
@@ -123,15 +140,18 @@
             background: none;
             border: none;
             color: #e7e5e4;
-            font-size: 1.5rem; /* 24px */
+            font-size: 1.25rem; /* 20px */
             font-weight: 700;
             top: 50%;
             left: 50%;
         }
+        @media (min-width: 768px) {
+            .nav-link { font-size: 1.5rem; }
+        }
         
         .nav-link:hover {
             color: #f97316;
-            transform: translate(-50%, -50%) scale(1.2) !important; /* Override animation transform */
+            transform: translate(-50%, -50%) scale(1.2) !important;
         }
 
         #orb-container.expanded .nav-link {
@@ -176,26 +196,24 @@
     </style>
 </head>
 <body>
-    <video autoplay muted loop id="background-video">
-        <!-- Using a placeholder video service. Replace with your own video URL. -->
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-flying-through-a-star-field-in-space-30886-large.mp4" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
+    <div id="background-image"></div>
 
     <div class="cursor"></div>
 
     <div id="main-title" class="fixed inset-0 flex flex-col items-center justify-center text-center z-50 pointer-events-none transition-opacity duration-500">
-        <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter">TAYAN</h1>
-        <p class="text-xl md:text-2xl text-orange-400 font-light tracking-widest mt-2">Brand Management Reimagined</p>
-    </div>
+        <h1 class="text-5xl md:text-8xl font-black uppercase tracking-tighter pointer-events-auto">TAYAN</h1>
+        
+        <div id="orb-container" class="pointer-events-auto">
+            <div id="orb"><div id="orb-rotator"></div></div>
+            <div id="nav-container"></div>
+        </div>
 
-    <div id="orb-container">
-        <div id="orb"><div id="orb-rotator"></div></div>
-        <div id="nav-container"></div>
+        <p class="text-xl md:text-2xl text-orange-400 font-light tracking-widest pointer-events-auto">Brand Management Reimagined</p>
     </div>
 
     <!-- Content Sections -->
     <div id="content-container">
+        <!-- All section content remains the same -->
         <section id="about" class="content-section">
             <div class="max-w-4xl mx-auto">
                 <h2 class="text-5xl font-bold text-orange-500 mb-8">A Brand Is A Living Story</h2>
@@ -214,7 +232,6 @@
                 </div>
             </div>
         </section>
-
         <section id="work" class="content-section">
             <div class="max-w-6xl mx-auto">
                 <h2 class="text-5xl font-bold text-orange-500 mb-12 text-center">The Brand Alchemy Process</h2>
@@ -252,7 +269,6 @@
                 </div>
             </div>
         </section>
-
         <section id="playground" class="content-section">
             <div class="max-w-4xl mx-auto text-center">
                 <h2 class="text-5xl font-bold text-orange-500 mb-4">Brand Playground</h2>
@@ -281,7 +297,6 @@
                 </div>
             </div>
         </section>
-
         <section id="contact" class="content-section">
             <div class="max-w-2xl mx-auto">
                 <h2 class="text-5xl font-bold text-orange-500 mb-8 text-center">Let's Build Something Iconic</h2>
@@ -303,7 +318,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const orbContainer = document.getElementById('orb-container');
-            const mainTitle = document.getElementById('main-title');
+            const mainTitleContainer = document.getElementById('main-title');
             const navContainer = document.getElementById('nav-container');
             const contentSections = document.querySelectorAll('.content-section');
             const closeBtnTemplate = document.getElementById('close-btn-template');
@@ -312,6 +327,7 @@
             let isMenuOpen = false;
             let animationFrameId;
             let currentAngle = 0;
+            const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 
             const navItems = [
                 { id: 'about', name: 'About' },
@@ -320,29 +336,42 @@
                 { id: 'contact', name: 'Contact' }
             ];
 
-            // --- Custom Cursor Logic ---
-            window.addEventListener('mousemove', e => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
+            // --- Cursor Logic ---
+            if (!isTouchDevice) {
+                window.addEventListener('mousemove', e => {
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                });
+                document.addEventListener('mouseover', e => {
+                    if (e.target.closest('a, button, input, select, textarea, #orb-container')) {
+                        cursor.classList.add('cursor-grow');
+                    } else {
+                        cursor.classList.remove('cursor-grow');
+                    }
+                });
+            }
 
-            document.addEventListener('mouseover', e => {
-                if (e.target.closest('a, button, input, select, textarea, #orb-container')) {
-                    cursor.classList.add('cursor-grow');
+            // --- Orb Interaction Logic ---
+            if (isTouchDevice) {
+                orbContainer.addEventListener('click', toggleMenu);
+            } else {
+                orbContainer.addEventListener('mouseenter', openMenu);
+                orbContainer.addEventListener('mouseleave', closeMenu);
+            }
+            
+            function toggleMenu() {
+                if (isMenuOpen) {
+                    closeMenu();
                 } else {
-                    cursor.classList.remove('cursor-grow');
+                    openMenu();
                 }
-            });
-
-            // --- Orb Interaction ---
-            orbContainer.addEventListener('mouseenter', openMenu);
-            orbContainer.addEventListener('mouseleave', closeMenu);
+            }
 
             function openMenu() {
                 if(isMenuOpen) return;
                 isMenuOpen = true;
                 orbContainer.classList.add('expanded');
-                mainTitle.style.opacity = '0';
+                mainTitleContainer.style.opacity = '0';
                 createNavLinks();
                 startOrbitAnimation();
             }
@@ -351,48 +380,36 @@
                 isMenuOpen = false;
                 orbContainer.classList.remove('expanded');
                 if(!document.querySelector('.content-section.visible')) {
-                    mainTitle.style.opacity = '1';
+                    mainTitleContainer.style.opacity = '1';
                 }
-                // Fade out links before removing
                 const links = navContainer.querySelectorAll('.nav-link');
                 links.forEach(link => {
                     link.style.opacity = '0';
                     link.style.transform = 'translate(-50%, -50%) scale(0.5)';
                 });
-
                 setTimeout(() => {
                     navContainer.innerHTML = '';
                     stopOrbitAnimation();
-                }, 600); // Match transition duration
+                }, 600);
             }
 
             function startOrbitAnimation() {
                 const links = navContainer.querySelectorAll('.nav-link');
                 if (links.length === 0) return;
-
                 const orbit = () => {
-                    currentAngle += 0.002; // Speed of orbit
-                    
+                    currentAngle += 0.002;
                     links.forEach((link, index) => {
                         const angleStep = (2 * Math.PI) / links.length;
                         const angle = index * angleStep + currentAngle;
-                        
-                        // We use the expanded container's radius for positioning
                         const radius = orbContainer.offsetWidth / 2 * 0.75; 
                         const x = 50 + (radius / orbContainer.offsetWidth * 100) * Math.cos(angle);
                         const y = 50 + (radius / orbContainer.offsetHeight * 100) * Math.sin(angle);
-                        
                         link.style.left = `${x}%`;
                         link.style.top = `${y}%`;
-
-                        // Apply counter-rotation to keep text upright
-                        // The parent does not rotate, so we only need to set the link's transform
-                        // We set the scale here to ensure it doesn't get overridden by hover
                         if (!link.matches(':hover')) {
                             link.style.transform = `translate(-50%, -50%) scale(1)`;
                         }
                     });
-
                     animationFrameId = requestAnimationFrame(orbit);
                 };
                 orbit();
@@ -412,8 +429,6 @@
                     navContainer.appendChild(link);
                     link.addEventListener('click', () => showSection(item.id));
                 });
-                
-                // Set initial scale to 1 after a short delay to trigger transition
                 setTimeout(() => {
                     navContainer.querySelectorAll('.nav-link').forEach(l => {
                         l.style.transform = 'translate(-50%, -50%) scale(1)';
@@ -423,11 +438,13 @@
 
             // --- Section Management ---
             function showSection(id) {
+                if (isTouchDevice) {
+                    closeMenu();
+                }
                 hideAllSections(true);
                 const section = document.getElementById(id);
                 if (section) {
-                    orbContainer.style.opacity = '0';
-                    orbContainer.style.pointerEvents = 'none';
+                    mainTitleContainer.style.display = 'none'; // Hide title container completely
                     section.classList.add('visible');
                     addCloseButton(section);
                 }
@@ -440,11 +457,10 @@
                     if(btn) btn.remove();
                 });
                 
-                orbContainer.style.opacity = '1';
-                orbContainer.style.pointerEvents = 'auto';
+                mainTitleContainer.style.display = 'flex';
 
                 if (!isTransitioning) {
-                    mainTitle.style.opacity = '1';
+                    mainTitleContainer.style.opacity = '1';
                 }
             }
 
